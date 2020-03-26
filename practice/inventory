@@ -1,0 +1,28 @@
+[control]
+master ansible_host=35.69.26.151
+
+[control:vars]
+ansible_connection=local
+
+[web]
+ubuntu-web ansible_host=34.69.231.219
+
+[app]
+ubuntu-app ansible_host=34.69.145.3
+
+[db]
+ubuntu-db ansible_host=104.198.179.219
+
+[ubuntu:children]
+web
+app
+db
+
+[ubuntu:vars]
+ansible_user=devops
+ansible_connection=ssh
+ansible_private_key_file=~/.ssh/id_rsa
+
+[all:vars]
+ANSIBLE_STDOUT_CALLBACK=debug
+

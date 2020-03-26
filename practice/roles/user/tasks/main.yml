@@ -1,0 +1,24 @@
+---
+# tasks file for user
+
+- name: Create "{{ user_name }}" group
+  become: yes
+  group:
+    name: "{{ user_group }}"
+    gid: "{{ user_gid }}"
+    state: present
+
+- name: Create "{{ user_name }}"  user
+  become: yes
+  user:
+    name: "{{ user_name }}"
+    uid: "{{ user_id }}"
+    group: "{{ user_group }}"
+    append: yes
+
+- name: Copy "{{ user_name }}" sudoers
+  become: yes
+  copy:
+    content: "{{ user_name }} {{ user_sudo_privs | default ( 'ALL=(ALL:ALL) NOPASSWD:ALL' ) }}"
+    dest: "/etc/sudoers.d/{{ user_name }}"
+    mode: 0644

@@ -1,0 +1,68 @@
+- name: ansible_day2
+  hosts: ubuntu
+
+  vars:
+    student_first_name: Maxim
+    student_last_name: Filipovich
+
+  roles:
+   - base
+
+   - role: user
+     vars:
+       user_name: max_fil
+       user_id: 1102
+       user_group: max_fil
+       user_gid: 1102
+       user_sudo_privs: ALL=(ALL:ALL) NOPASSWD:ALL
+
+   - role: msg-service
+     vars:
+       app_user: "{{ user_name }}"
+       app_group: "{{ user_group }}"
+       app_home: "/opt/{{ user_name }}"
+       app_port: 8080
+
+   - mysql-db
+
+   - role: mysql-user
+     vars:
+       mysql_db_user_database: prod
+       mysql_db_user_user: maximus
+       mysql_db_user_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          62386664336636393164383963393139383538613334383864313233396439633663353864376331
+          3331356262363832313732333466333061323539383936330a346662636534646566333065386136
+          63653431313938633839336532633334303537613630663063383063623866303939373864373231
+          6235653938656431640a303631313035383037343865613335383863623133643663396432616363
+          3339
+
+       mysql_db_user_root_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          64383838613866646637346330336162333439333764633337363637663832303261326365636330
+          3664303939663565643038303739363263656433313937350a303738393536646637626465356635
+          38623061646265326166323266633266343562623832623961616437333837653530623830623739
+          3432613266336162310a306133336434303133623038643665316132623136613038363839613635
+          3064
+
+   - role: mysql-check
+     vars:
+       mysql_check_port: 8082
+
+  tasks:
+   - name: Test if MySQL and msg-server is running
+     command: systemctl status "{{ item }}"
+     register: test
+     changed_when: false
+     failed_when: not 'active (running)' in test.stdout
+     with_items:
+       - msg-service
+       - mysql
+     become: yes
+
+   - name: Check if msg-server is on port "{{ app_port }}"
+     command: 'netstat -tunlp | grep :"{{ app_port }}"'
+     register: test
+     changed_when: false
+     failed_when: not 'msg-server' in test.stdout
+     become: yes

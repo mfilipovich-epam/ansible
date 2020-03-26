@@ -1,0 +1,31 @@
+---
+# tasks file for base
+
+- name: Esure Ansible Facts Dir exists
+  become: yes
+  file: path=/etc/ansible/facts.d state=directory recurse=yes
+
+- name: Pkg install
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python
+    - python-pip
+    - curl
+    - wget
+    - net-tools
+    - tree
+    - sudo
+    - python-mysqldb
+    - libmysqlclient-dev
+  when: ansible_os_family == "Debian" and ansible_distribution_version == "18.04"
+
+- name: Sudoers - requiretty
+  lineinfile:
+    path: /etc/sudoers
+    regexp: '^Defaults'
+    line: 'Defaults        !requiretty'
+  become: yes
+

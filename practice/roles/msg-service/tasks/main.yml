@@ -1,0 +1,52 @@
+---
+# tasks file for msg-service 
+
+- name: Create app folders for user  "{{ app_user }}"
+  become: yes
+  file:
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  with_items:
+    - "{{ app_home }}/bin/"
+    - "{{ app_home }}/conf/"
+
+- name: Download msg-server
+  become: yes
+  get_url:
+    url: https://playpit-labs-assets.s3-eu-west-1.amazonaws.com/msg-service/msg-server
+    dest: "{{ app_home }}/bin/"
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0755'
+
+- name: Copying conf file
+  become: yes
+  template:
+    src: msg-service.j2
+    dest: "{{ app_home }}/conf/msg-service.conf"
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0644'
+  notify:
+  - restart service
+
+- name: Copying systemd file
+  become: yes
+  template:
+    src: msg-service.service
+    dest: /lib/systemd/system/msg-service.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+  - restart service
+
+- name: run service
+  become: yes
+  systemd:
+    state: started
+    name: msg-service.service
+    enabled: yes
