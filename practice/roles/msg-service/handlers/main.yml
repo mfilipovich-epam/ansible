@@ -7,3 +7,15 @@
     state: restarted
     name: msg-service.service
     daemon_reload: yes
+
+- name: msg-service enabled
+  become: yes
+  copy:
+    content: >
+      {
+          "initialized": true,
+          "port": {{ app_port }},
+          "user": {{ app_user }},
+          "date": "{{ ansible_date_time.iso8601 }}"
+      }
+    dest: /etc/ansible/facts.d/msg-service.fact

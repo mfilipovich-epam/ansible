@@ -1,0 +1,13 @@
+server {
+      listen 80;
+      server_name mfilipovich.playpit.net;
+      location /msg-service {
+          proxy_pass http://34.69.145.3:8080/ ;
+      }
+      location /mysql-check {
+          proxy_pass http://34.69.145.3:30100/ ;
+      }
+      location /check {
+          proxy_pass http://34.69.145.3:30100/;
+      }
+   }

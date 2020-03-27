@@ -1,19 +1,28 @@
-- name: All
-  hosts: ubuntu
-  gather_facts: yes
+- name: ansible_day2
+  hosts: ubuntu-test
 
   vars:
     student_first_name: Maxim
     student_last_name: Filipovich
 
   roles:
-
    - base
 
-- name: DB Tier
-  hosts: ubuntu-db
+   - role: user
+     vars:
+       user_name: max_fil
+       user_id: 1102
+       user_group: max_fil
+       user_gid: 1102
+       user_sudo_privs: ALL=(ALL:ALL) NOPASSWD:ALL
 
-  roles:
+   - role: msg-service
+     vars:
+       app_user: "{{ user_name }}"
+       app_group: "{{ user_group }}"
+       app_home: "/opt/{{ user_name }}"
+       app_port: 8080
+
    - mysql-db
 
    - role: mysql-user
@@ -36,51 +45,9 @@
           3538663531313333630a636638383937616263643331303330333636363763356332646232633535
           6632
 
-
-- name: App Tier
-  hosts: ubuntu-app
-  vars:
-    student_first_name: Maxim
-    student_last_name: Filipovich
-
-  roles:
-
-   - role: user
-     vars:
-       user_name: max_fil
-       user_id: 1102
-       user_group: max_fil
-       user_gid: 1102
-       user_sudo_privs: ALL=(ALL:ALL) NOPASSWD:ALL
-
-   - role: msg-service
-     vars:
-       app_user: "{{ user_name }}"
-       app_group: "{{ user_group }}"
-       app_home: "/opt/{{ user_name }}"
-       app_port: 8080
-
    - role: mysql-check
      vars:
        mysql_check_port: 8082
-
-- name: Web Tier
-  hosts: ubuntu-web
-
-  roles:
-
-    - nginx-base
-
-    - role: web-service
-      vars:
-        backends:
-          # context is a part of url - location in terms of nginx
-          - context: msg-service
-            hostip: "{{ hostvars[groups['app'][0]].ansible_eth0.ipv4.address }}"
-            hostport: "{{ msg_service_port }}"
-          - context: mysql-check
-            hostip: "{{ hostvars[groups['app'][0]].ansible_eth0.ipv4.address }}"
-            hostport: "{{ mysql_check_port }}"
 
   tasks:
    - name: Test if MySQL and msg-server is running

@@ -5,6 +5,13 @@
   become: yes
   file: path=/etc/ansible/facts.d state=directory recurse=yes
 
+- name: Copy devops sudoers
+  become: yes
+  copy:
+    content: "devops ALL=(ALL:ALL) NOPASSWD:ALL"
+    dest: "/etc/sudoers.d/devops"
+    mode: 0644
+
 - name: Pkg install
   become: yes
   package:
@@ -20,6 +27,9 @@
     - sudo
     - python-mysqldb
     - libmysqlclient-dev
+    - python-dev
+    - build-essential
+    - manpages-dev
   when: ansible_os_family == "Debian" and ansible_distribution_version == "18.04"
 
 - name: Sudoers - requiretty

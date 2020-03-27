@@ -1,18 +1,6 @@
 ---
 # tasks file for mysql-user
 
-- name: Echo my_env_var
-  become: yes
-  shell: "echo $ROOT_PSW"
-  environment:
-    ROOT_PSW: "{{ mysql_db_user_root_password }}"
-  changed_when: False
-
-- name: Root passw
-  shell: echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '$ROOT_PSW';" | mysql -u root --skip-password
-  become: yes
-  changed_when: False
-
 - name: Add user for create DB
   become: yes
   mysql_user:
@@ -28,3 +16,5 @@
     login_user: "{{ mysql_db_user_user }}"
     login_password: "{{ mysql_db_user_password }}"
   become: yes
+  notify:
+    - mysql credentials

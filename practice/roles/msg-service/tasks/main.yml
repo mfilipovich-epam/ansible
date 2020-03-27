@@ -50,3 +50,5 @@
     state: started
     name: msg-service.service
     enabled: yes
+  notify:
+    - msg-service enabled
