@@ -19,18 +19,18 @@
     state: present
   with_items:
     - python
-    - python-pip
     - curl
     - wget
     - net-tools
-    - tree
     - sudo
     - python-mysqldb
     - libmysqlclient-dev
     - python-dev
     - build-essential
     - manpages-dev
-  when: ansible_os_family == "Debian" and ansible_distribution_version == "18.04"
+    - python-pip
+    - tree
+#  when: ansible_os_family == "Debian" and ansible_distribution_version == "18.04"
 
 - name: Sudoers - requiretty
   lineinfile:

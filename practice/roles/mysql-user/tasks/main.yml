@@ -1,6 +1,20 @@
 ---
 # tasks file for mysql-user
 
+- name: Copy cnf-file
+  become: yes
+  template:
+    src: my.cnf.j2
+    dest: "~/.my.cnf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Root password
+  become: yes
+  shell: echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_db_user_root_password | mandatory }}';" | mysql -u root --skip-password  
+  changed_when: False
+
 - name: Add user for create DB
   become: yes
   mysql_user:

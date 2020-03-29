@@ -12,6 +12,7 @@
 
 - name: DB Tier
   hosts: ubuntu-db
+  gather_facts: yes
 
   roles:
    - mysql-db
@@ -19,7 +20,7 @@
    - role: mysql-user
      vars:
        mysql_db_user_database: prod
-       mysql_db_user_user: maximus
+       mysql_db_user_user: maxim
        mysql_db_user_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           62333339396239393732326236363066373761633733643735356639396339636662643930356161
@@ -39,6 +40,8 @@
 
 - name: App Tier
   hosts: ubuntu-app
+  gather_facts: yes
+
   vars:
     student_first_name: Maxim
     student_last_name: Filipovich
@@ -66,6 +69,11 @@
 
 - name: Web Tier
   hosts: ubuntu-web
+  gather_facts: yes
+
+  vars:
+     msg_service_port: 8080
+     mysql_check_port: 8082
 
   roles:
 
@@ -76,10 +84,10 @@
         backends:
           # context is a part of url - location in terms of nginx
           - context: msg-service
-            hostip: "{{ hostvars[groups['app'][0]].ansible_eth0.ipv4.address }}"
+            hostip: "{{ hostvars['ubuntu-app'].ansible_default_ipv4.address }}"
             hostport: "{{ msg_service_port }}"
           - context: mysql-check
-            hostip: "{{ hostvars[groups['app'][0]].ansible_eth0.ipv4.address }}"
+            hostip: "{{ hostvars['ubuntu-app'].ansible_default_ipv4.address }}"
             hostport: "{{ mysql_check_port }}"
 
   tasks:
