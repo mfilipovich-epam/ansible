@@ -21,6 +21,7 @@
     name: "{{ mysql_db_user_user }}"
     password: "{{ mysql_db_user_password }}"
     priv: "*.*:ALL"
+    host: "%"
     state: present
 
 - name: Create DB

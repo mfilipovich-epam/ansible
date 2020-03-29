@@ -1,6 +1,6 @@
 server {
       listen 80;
-      server_name ansible.mfilipovich.playpit.net;
+      server_name mfilipovich.playpit.net;
       location /msg-service {
           proxy_pass http://{{ backends.0.hostip }}:{{ backends.0.hostport }}/;
       }
